@@ -95,11 +95,14 @@ const CryptoTracker = () => {
     const fetchTransactions = async () => {
         try {
             const res = await axios.get("http://localhost:5084/api/PersonTransaction");
-            setTransactions(res.data.data);
-        } catch (err) {
-            console.error("Failed to fetch transactions", err);
+            console.log("Fetched Transactions:", res.data); // ✅ Check if array
+            setTransactions(res.data);
+        } catch (error) {
+            console.error("Failed to fetch transactions", error);
+            setTransactions([]); // fallback to empty array to avoid crash
         }
     };
+
 
     useEffect(() => {
         fetchCryptoPrices(currency);
@@ -225,28 +228,33 @@ const CryptoTracker = () => {
             </div>
             <div className="container mt-5">
                 <h3 className="text-center mb-3">📜 Transaction History</h3>
-                <table className="table table-bordered table-hover shadow-sm">
-                    <thead className="table-dark">
-                        <tr>
-                            <th>Name</th>
-                            <th>Action</th>
-                            <th>Coin</th>
-                            <th>Amount</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transactions.map((tx, index) => (
-                            <tr key={index}>
-                                <td>{tx.name}</td>
-                                <td>{tx.actionType}</td>
-                                <td>{tx.coin}</td>
-                                <td>{tx.amount}</td>
-                                <td>{new Date(tx.timestamp).toLocaleString()}</td>
+                {Array.isArray(transactions) && transactions.length > 0 ? (
+                    <table className="table mt-4">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                                <th>Coin</th>
+                                <th>Amount</th>
+                                <th>Time</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {transactions.map((tx, index) => (
+                                <tr key={index}>
+                                    <td>{tx.name}</td>
+                                    <td>{tx.actionType}</td>
+                                    <td>{tx.coin}</td>
+                                    <td>{tx.amount}</td>
+                                    <td>{new Date(tx.timestamp).toLocaleString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p className="text-center text-muted">No transactions yet.</p>
+                )}
+
             </div>
 
         </div>
